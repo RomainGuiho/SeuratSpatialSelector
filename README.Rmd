@@ -1,5 +1,8 @@
 ---
 output: github_document
+knitr:
+  opts_chunk: 
+    eval: false
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -25,30 +28,66 @@ The goal of SeuratSpatialSelector is to ...
 You can install the development version of SeuratSpatialSelector like so:
 
 ``` r
-# FILL THIS IN! HOW CAN PEOPLE INSTALL YOUR DEV PACKAGE?
+devtools::install_github("RomainGuiho/SeuratSpatialSelector")
 ```
 
-## Example
+## Basic example
 
-This is a basic example which shows you how to solve a common problem:
+This is a basic example:
 
-```{r example}
+```{r basic_example, eval=FALSE}
 library(SeuratSpatialSelector)
+
+## Create fov metadata column in the Seurat object
+
+### Nanostring CosMx object 
+CosMx_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", CosMx_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+
+### 10X Xenium object 
+Xenium_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", Xenium_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+
+
 ## basic example code
+
+list_fov <- c(1,3,5)
+
+spatial_seurat_object <- run_spatial_selection(
+  seurat_obj   = spatial_seurat_object,
+  meta_id      = "slide_fov",
+  fovs         = list_fov,
+  metadata_col = "ManualSelection",
+  positive_label = "Selected",
+  negative_label = "Not_Selected",
+  cols = NULL
+)
 ```
 
-What is special about using `README.Rmd` instead of just `README.md`? You can include R chunks like so:
 
-```{r cars}
-summary(cars)
+## Multi-images example
+
+### Nanostring CosMx object created with LoadNanostring()
+
+```{r cosmx_example, eval=FALSE}
+
+## Create slide_fov column in the Seurat object
+
+spatial_seurat_object@meta.data[["slide_fov"]] <- c(
+  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),
+  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_2"]]@boundaries[["centroids"]]@cells)
+  )
+
+
 ```
 
-You'll still need to render `README.Rmd` regularly, to keep `README.md` up-to-date. `devtools::build_readme()` is handy for this.
 
-You can also embed plots, for example:
+### 10X Xenium object created with LoadXenium()
 
-```{r pressure, echo = FALSE}
-plot(pressure)
+```{r xenium_example, eval=FALSE}
+
+spatial_seurat_object@meta.data[["slide_fov"]] <- c(
+  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),
+  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_2"]]@boundaries[["centroids"]]@cells)
+  )
+
 ```
 
-In that case, don't forget to commit and push the resulting figure files, so they display on GitHub and CRAN.
