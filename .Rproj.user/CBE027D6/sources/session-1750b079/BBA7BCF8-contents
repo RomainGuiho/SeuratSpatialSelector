@@ -1,0 +1,17 @@
+Package: SeuratSpatialSelector
+Title: Interactive Cell Selection on Seurat Spatial Data
+Version: 0.1.0
+Authors@R: person("Romain", "Guiho", email = "romain.guiho@univ-nantes.fr", role = c("aut", "cre"))
+Description: Provides an interactive shiny-based tool for manual spatial cell selection in Seurat objects using plotly.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends: R (>= 4.2)
+Imports:
+    shiny,
+    plotly,
+    ggplot2,
+    Seurat,
+    utils,
+    methods
+LazyData: true
+RoxygenNote: 7.3.3
