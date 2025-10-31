@@ -6,12 +6,15 @@
 \usage{
 run_spatial_selection(
   seurat_obj,
-  meta_id,
+  meta_id = NULL,
   fovs,
   images = NULL,
   metadata_col = "ManualSelection",
   positive_label = "Selected",
   negative_label = "Not_Selected",
+  incremental = FALSE,
+  point_size = 3,
+  invert_coordinates = FALSE,
   cols = NULL
 )
 }
@@ -20,11 +23,11 @@ run_spatial_selection(
 
 \item{meta_id}{Name of the metadata column identifying the FOVs (e.g. "fov", "Region", "sample_id")}
 
-\item{fovs}{Character vector of FOV identifiers to analyze (must match the values in `meta_id`)}
+\item{fovs}{Names of the images if `meta_id` is not used (e.g. in Xenium objects)
+or character vector of FOV identifiers to analyze (must match the values in `meta_id`)}
 
-\item{images}{Optional character vector of image names (same length as `fovs`). If provided,
-`images[i]` is used as `fov` argument for the drawing function for `fovs[i]`.
-If NULL (default), no `fov` argument is provided to ImageDimPlot.}
+\item{images}{Optional character vector of image names (same length as `fovs`).
+If NULL, the function will automatically attempt to use `fovs` as image names.}
 
 \item{metadata_col}{Name of the metadata column to store selection results (default "ManualSelection").}
 
@@ -32,7 +35,14 @@ If NULL (default), no `fov` argument is provided to ImageDimPlot.}
 
 \item{negative_label}{Label for unselected cells (default "Not_Selected").}
 
-\item{cols}{Optional color vector passed to ImageDimPlot.}
+\item{incremental}{Logical. If TRUE, keep existing labels in `metadata_col` and add new `positive_label`
+instead of resetting the column (default FALSE).}
+
+\item{point_size}{Numeric. Size of points in the interactive selection plot (default: 3).}
+
+\item{invert_coordinates}{Logical. If TRUE, swaps x/y coordinates in interactive selection (default: FALSE).}
+
+\item{cols}{Optional color vector for idents passed to ImageDimPlot.}
 }
 \value{
 The modified Seurat object with updated metadata column.

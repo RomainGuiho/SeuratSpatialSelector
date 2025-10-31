@@ -35,16 +35,13 @@ devtools::install_github("RomainGuiho/SeuratSpatialSelector")
 
 This is a basic example:
 
-```{r basic_example, eval=FALSE}
+``` r
 library(SeuratSpatialSelector)
 
-## Create fov metadata column in the Seurat object
-
-### Nanostring CosMx object 
-CosMx_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", CosMx_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
-
-### 10X Xenium object 
-Xenium_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", Xenium_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+merge_xenium <- run_spatial_selection(
+  merge_xenium,
+  fovs = c("Xenium_001", "Xenium_002", "Xenium_003")
+)
 
 
 ## basic example code
@@ -67,22 +64,27 @@ spatial_seurat_object <- run_spatial_selection(
 
 ### Nanostring CosMx object created with LoadNanostring()
 
-```{r cosmx_example, eval=FALSE}
+``` r
 
-## Create slide_fov column in the Seurat object
+## Create fov metadata column in the Seurat object
+
+### Nanostring CosMx object 
+CosMx_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", CosMx_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+
+### 10X Xenium object 
+Xenium_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", Xenium_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
 
 spatial_seurat_object@meta.data[["slide_fov"]] <- c(
   gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),
   gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_2"]]@boundaries[["centroids"]]@cells)
   )
 
-
 ```
 
 
 ### 10X Xenium object created with LoadXenium()
 
-```{r xenium_example, eval=FALSE}
+``` r
 
 spatial_seurat_object@meta.data[["slide_fov"]] <- c(
   gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),

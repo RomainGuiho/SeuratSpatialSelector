@@ -4,14 +4,32 @@
 \alias{interactive_point_selection}
 \title{Interactive selection of cells from a ggplot (Seurat spatial plot)}
 \usage{
-interactive_point_selection(ggplot_object)
+interactive_point_selection(
+  ggplot_object,
+  invert_coordinates = FALSE,
+  point_size = 3
+)
 }
 \arguments{
 \item{ggplot_object}{A ggplot object (e.g. from ImageDimPlot)}
+
+\item{invert_coordinates}{Logical. If TRUE, swaps x and y coordinates before returning
+(useful if selections appear mirrored or mismatched). Default: FALSE.}
+
+\item{point_size}{Numeric. Size of points displayed in the interactive plot (default: 3).}
 }
 \value{
 A data.frame of selected points (x, y, cell, etc.)
 }
 \description{
-Interactive selection of cells from a ggplot (Seurat spatial plot)
+Launches an interactive Shiny app that allows users to select spatial points
+directly on a Seurat spatial plot (converted via Plotly). The user should use
+the **lasso selection tool** to draw around desired cells, then click
+**"Validate selection"** to return the selected coordinates.
+}
+\details{
+Some Seurat spatial objects may display inverted
+coordinate axes relative to their internal representation.
+If your selection does not map correctly to the expected cells, try setting
+`invert_coordinates = TRUE` to swap the `x` and `y` coordinates before returning.
 }
