@@ -7,7 +7,17 @@
 
 <!-- badges: end -->
 
-The goal of SeuratSpatialSelector is to …
+SeuratSpatialSelector provides an intuitive way to manually select cells
+from spatial transcriptomic data within a Seurat object. Using an
+interactive Plotly interface, users can draw freehand regions of
+interest (ROIs) directly on the spatial plots and store the selected
+cells in a new metadata column — making downstream analyses (such as
+subset visualization, differential expression, or spatial pattern
+analysis) much easier.
+
+The package supports multiple ways to define spatial regions depending
+on how the Seurat object was built and which spatial technology was
+used.
 
 ## Installation
 
@@ -18,57 +28,101 @@ so:
 devtools::install_github("RomainGuiho/SeuratSpatialSelector")
 ```
 
-## Basic example
+## Core function
 
-This is a basic example:
+    run_spatial_selection()
 
-``` r
-library(SeuratSpatialSelector)
+- Opens an interactive selection interface for each field of view (FOV)
+  or metadata-defined region.
 
-## Create fov metadata column in the Seurat object
+- Adds (or updates) a metadata column (default: `ManualSelection`) in
+  the Seurat object.
 
-### Nanostring CosMx object 
-CosMx_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", CosMx_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+- Can work incrementally (adding multiple labels without resetting
+  previous ones).
 
-### 10X Xenium object 
-Xenium_seurat_object@meta.data[["fovs"]] <- gsub("_[^_]+_", "_", Xenium_seurat_object@images[["FOV"]]@boundaries[["centroids"]]@cells)
+- Supports options for point size and coordinate inversion.
 
+## Usage Examples
 
-## basic example code
+### 1. Selection from Seurat FOVs (e.g. Xenium data)
 
-list_fov <- c(1,3,5)
+    merge_xenium <- readRDS("Save/merge_xenium.rds")
+    fovs <- names(merge_xenium@images)
 
-spatial_seurat_object <- run_spatial_selection(
-  seurat_obj   = spatial_seurat_object,
-  meta_id      = "slide_fov",
-  fovs         = list_fov,
-  metadata_col = "ManualSelection",
-  positive_label = "Selected",
-  negative_label = "Not_Selected",
-  cols = NULL
-)
-```
+    merge_xenium <- run_spatial_selection(
+      seurat_obj   = merge_xenium,
+      fovs         = fovs,
+      metadata_col = "ManualSelection",
+      positive_label = "Selected",
+      negative_label = "Not_Selected",
+      point_size   = 2
+    )
 
-## Multi-images example
+    ImageDimPlot(
+      merge_xenium,
+      group.by = "ManualSelection",
+      boundaries = "centroids",
+      fov = "Xenium_001",
+      size = 1
+    )
 
-### Nanostring CosMx object created with LoadNanostring()
+### 2. Selection based on a metadata field (e.g. CosMx data)
 
-``` r
+    merge_cosmx <- readRDS("Save/merge_cosmx.rds")
 
-## Create slide_fov column in the Seurat object
+    # Example: define a metadata column for smaller sub-FOVs
+    merge_cosmx@meta.data[["slide_fov"]] <- c(
+      gsub("_[^_]+_", "_", merge_cosmx@images[["slide_1"]]@boundaries[["centroids"]]@cells),
+      gsub("_[^_]+_", "_", merge_cosmx@images[["slide_2"]]@boundaries[["centroids"]]@cells)
+    )
 
-spatial_seurat_object@meta.data[["slide_fov"]] <- c(
-  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),
-  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_2"]]@boundaries[["centroids"]]@cells)
-  )
-```
+    list_slide_fov <- c("1_23", "1_42", "2_12", "2_31")
+    list_image <- c("slide_1", "slide_1", "slide_2", "slide_2")
 
-### 10X Xenium object created with LoadXenium()
+    merge_cosmx <- run_spatial_selection(
+      seurat_obj   = merge_cosmx,
+      meta_id      = "slide_fov",
+      fovs         = list_slide_fov,
+      images       = list_image,
+      metadata_col = "ManualSelection",
+      positive_label = "Selected",
+      negative_label = "Not_Selected"
+    )
 
-``` r
+## Incremental labeling
 
-spatial_seurat_object@meta.data[["slide_fov"]] <- c(
-  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_1"]]@boundaries[["centroids"]]@cells),
-  gsub("_[^_]+_", "_", spatial_seurat_object@images[["slide_2"]]@boundaries[["centroids"]]@cells)
-  )
-```
+When you want to define multiple regions with different labels (e.g.,
+“Selected_label_1”, “Selected_label_2”), use the `incremental = TRUE`
+option to prevent resetting the metadata.
+
+    merge_cosmx <- run_spatial_selection(
+      seurat_obj   = merge_cosmx,
+      meta_id      = "slide_fov",
+      fovs         = list_slide_fov,
+      images       = list_image,
+      metadata_col = "ManualSelection",
+      positive_label = "Selected_label_1",
+      negative_label = "Not_Selected"
+    )
+
+    merge_cosmx <- run_spatial_selection(
+      seurat_obj   = merge_cosmx,
+      meta_id      = "slide_fov",
+      fovs         = list_slide_fov,
+      images       = list_image,
+      metadata_col = "ManualSelection",
+      positive_label = "Selected_label_2",
+      incremental   = TRUE
+    )
+
+## Advanced Usage
+
+- Hold Shift to select multiple regions on the same FOV.
+
+- Adjust point_size to improve visibility for dense plots.
+
+- Set invert_coordinates = TRUE if the plotted coordinates appear
+  flipped.
+
+- Combine incremental labels for multi-region annotation.
